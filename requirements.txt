@@ -8,4 +8,4 @@ plotly==6.3.0
 requests==2.32.3
 streamlit==1.49.1
 tqdm==4.67.1
-
+scipy==1.14.1
