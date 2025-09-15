@@ -5,7 +5,7 @@ from datetime import datetime
 from dash import Dash, dcc, html, Input, Output, ctx, State
 import plotly.graph_objects as go
 import numpy as np
-from scipy.interpolate import make_interp_spline
+# from scipy.interpolate import make_interp_spline
 from datetime import datetime, timedelta
 from datetime import tzinfo
 from datetime import timezone
@@ -150,11 +150,11 @@ if __name__ == "__main__":
 
     st.title("🌦️ Weather Forecast Viewer")
 
-    city = st.text_input("Entrez une ville", value="Paris")
+    city = st.text_input("Entrez une ville")
 
     if city:
         lat, lon = geocoding(city)
-
+        print(city)
         data = getForecast(lat, lon)
         temperatures = [entry["main"]["temp"] for entry in data["list"]]
         timestamps = [datetime.fromtimestamp(entry["dt"]) for entry in data["list"]]
