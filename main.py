@@ -5,10 +5,10 @@ import requests
 from datetime import datetime, timedelta
 from scipy.interpolate import make_interp_spline
 import plotly.graph_objects as go
-from streamlit_plotly_events import plotly_events 
+from streamlit_plotly_events import plotly_events
 
-
-API_KEY = st.secrets["API_KEY"]  
+# → Ta clé API personnelle
+API_KEY = st.secrets["API_KEY"]
 
 EMOJIS = {
     "Clear": "☀️",
@@ -43,10 +43,7 @@ def getForecast(lat, lon):
     response = requests.get(url, params=params)
     return response.json()
 
-def create_weather_plot(df, selected_day=None):
-    if selected_day:
-        df = df[df["day"] == selected_day]
-
+def create_weather_plot(df):
     # Interpolation
     x_raw = np.array([ts.timestamp() for ts in df["datetime"]])
     y_raw = np.array(df["temperature"])
@@ -149,12 +146,10 @@ if city:
         df["day"] = df["datetime"].dt.date
         df["hour"] = df["datetime"].dt.hour
 
-
         # Affichage principal + interaction clic
         fig = create_weather_plot(df)
         st.write("Cliquez sur un point pour zoomer sur le jour correspondant :")
         selected = plotly_events(fig, click_event=True, hover_event=False)
-
 
         if selected:
             point_index = selected[0]["pointIndex"]
