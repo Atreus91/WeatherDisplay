@@ -133,7 +133,6 @@ def getForecast(lat, lon):
         }
     return requests.get(oc_url, params=oc_params).json()
 
-API_KEY = '3c4238d722f3627c0299891bf1fd0346'
 CITY = "La Forêt-Sainte-Croix,FR"
 
 EMOJIS = {
