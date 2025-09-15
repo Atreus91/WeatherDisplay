@@ -114,7 +114,7 @@ def create_weather_plot(filtered_df, day=None):
 
     return fig
 
-def geocoding(city):
+def geocoding(city, API_KEY):
     geo_url = "https://api.openweathermap.org/geo/1.0/direct"
     geo_params = {"q": city, "limit": 1, "appid": API_KEY}
     geo = requests.get(geo_url, params=geo_params).json()
@@ -122,7 +122,7 @@ def geocoding(city):
     lat, lon = geo[0]["lat"], geo[0]["lon"]
     return lat, lon
 
-def getForecast(lat, lon):
+def getForecast(lat, lon, API_KEY):
     oc_url = "https://api.openweathermap.org/data/2.5/forecast"
     oc_params={
             "lat": lat,
@@ -143,8 +143,8 @@ EMOJIS = {
 }
 
 def main():
-    # API_KEY = st.secrets["API_KEY"]
-    API_KEY = '3c4238d722f3627c0299891bf1fd0346'
+    API_KEY = st.secrets["API_KEY"]
+    # API_KEY = '3c4238d722f3627c0299891bf1fd0346'
 
     st.set_page_config(page_title="Weather App ☁️", layout="wide")
 
@@ -153,9 +153,9 @@ def main():
     city = st.text_input("Entrez une ville")
 
     if city:
-        lat, lon = geocoding(city)
-        print(city)
-        data = getForecast(lat, lon)
+        lat, lon = geocoding(city, API_KEY)
+        # print(city)
+        data = getForecast(lat, lon, API_KEY)
         temperatures = [entry["main"]["temp"] for entry in data["list"]]
         timestamps = [datetime.fromtimestamp(entry["dt"]) for entry in data["list"]]
         weathers = [entry["weather"][0]["main"] for entry in data['list']]
