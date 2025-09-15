@@ -133,7 +133,6 @@ def getForecast(lat, lon, API_KEY):
         }
     return requests.get(oc_url, params=oc_params).json()
 
-CITY = "La Forêt-Sainte-Croix,FR"
 
 EMOJIS = {
     "Clear": "☀️",
@@ -144,8 +143,6 @@ EMOJIS = {
 
 def main():
     API_KEY = st.secrets["API_KEY"]
-    # API_KEY = '3c4238d722f3627c0299891bf1fd0346'
-    print('ok')
     st.set_page_config(page_title="Weather App ☁️", layout="wide")
 
     st.title("🌦️ Weather Forecast Viewer")
@@ -154,7 +151,6 @@ def main():
 
     if city:
         lat, lon = geocoding(city, API_KEY)
-        print(city, lat, lon)
         data = getForecast(lat, lon, API_KEY)
         temperatures = [entry["main"]["temp"] for entry in data["list"]]
         timestamps = [datetime.fromtimestamp(entry["dt"]) for entry in data["list"]]
