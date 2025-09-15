@@ -143,6 +143,8 @@ EMOJIS = {
 }
 
 if __name__ == "__main__":
+    API_KEY = st.secrets["API_KEY"]
+
     st.set_page_config(page_title="Weather App ☁️", layout="wide")
 
     st.title("🌦️ Weather Forecast Viewer")
