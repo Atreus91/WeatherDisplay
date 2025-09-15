@@ -142,7 +142,7 @@ EMOJIS = {
     "Snow": "❄️",
 }
 
-if __name__ == "__main__":
+def main():
     # API_KEY = st.secrets["API_KEY"]
     API_KEY = '3c4238d722f3627c0299891bf1fd0346'
 
@@ -177,30 +177,32 @@ if __name__ == "__main__":
             dcc.Store(id="stored_day"),
             dcc.Graph(id="graph", figure=create_weather_plot(df)),
         ])
+        
+
+        @app.callback(
+            Output("graph", "figure"),
+            Output("stored_day", "data"),  # ← Mémoire du jour affiché
+            Input("graph", "clickData"),
+            State("stored_day", "data")
+        )
+        def update_on_click(clickData, stored_day):
+            if clickData is None:
+                return create_weather_plot(df, ""), None
+
+            clicked_dt = clickData["points"][0]["x"]
+            clicked_day = pd.to_datetime(clicked_dt).date()
+
+            if stored_day == str(clicked_day):
+                # 👈 même jour → on réinitialise
+                return create_weather_plot(df, ""), None
+
+            # 👈 nouveau jour → on filtre
+            filtered_df = df[df["datetime"].dt.date == clicked_day]
+            label = f"- {clicked_day.strftime('%A %d %B')}"
+
+            return create_weather_plot(filtered_df, label), str(clicked_day)
+
         app.run(debug=True)
 
-@app.callback(
-    Output("graph", "figure"),
-    Output("stored_day", "data"),  # ← Mémoire du jour affiché
-    Input("graph", "clickData"),
-    State("stored_day", "data")
-)
-def update_on_click(clickData, stored_day):
-    if clickData is None:
-        return create_weather_plot(df, ""), None
-
-    clicked_dt = clickData["points"][0]["x"]
-    clicked_day = pd.to_datetime(clicked_dt).date()
-
-    if stored_day == str(clicked_day):
-        # 👈 même jour → on réinitialise
-        return create_weather_plot(df, ""), None
-
-    # 👈 nouveau jour → on filtre
-    filtered_df = df[df["datetime"].dt.date == clicked_day]
-    label = f"- {clicked_day.strftime('%A %d %B')}"
-
-    return create_weather_plot(filtered_df, label), str(clicked_day)
-
-
-
+if __name__ == "__main__":
+    main()
