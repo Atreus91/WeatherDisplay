@@ -18,13 +18,13 @@ def create_weather_plot(filtered_df, day=None):
     # Interpolation
     x_raw = np.array([ts.timestamp() for ts in filtered_df["datetime"]])
     y_raw = np.array(filtered_df["temperature"])
-    if len(x_raw) >= 4:
-        x_new = np.linspace(x_raw.min(), x_raw.max(), 300)
-        spline = make_interp_spline(x_raw, y_raw, k=3)
-        y_smooth = spline(x_new)
-        x_smooth = [datetime.fromtimestamp(ts, timezone.utc) for ts in x_new]
-    else:
-        x_smooth, y_smooth = [], []
+    # if len(x_raw) >= 4:
+    #     x_new = np.linspace(x_raw.min(), x_raw.max(), 300)
+    #     spline = make_interp_spline(x_raw, y_raw, k=3)
+    #     y_smooth = spline(x_new)
+    #     x_smooth = [datetime.fromtimestamp(ts, timezone.utc) for ts in x_new]
+    # else:
+    #     x_smooth, y_smooth = [], []
     
     # print("min/max temps réel :", min(filtered_df["datetime"]), max(filtered_df["datetime"]))
     # print("min/max x_smooth :", min(x_smooth), max(x_smooth))
@@ -42,14 +42,14 @@ def create_weather_plot(filtered_df, day=None):
     ))
 
     # Température lissée
-    if x_smooth:
-        fig.add_trace(go.Scatter(
-            x=x_smooth,
-            y=y_smooth,
-            mode='lines',
-            name='Température lissée',
-            line=dict(color='red', width=2, dash='dot'),
-        ))
+    # if x_smooth:
+    #     fig.add_trace(go.Scatter(
+    #         x=x_smooth,
+    #         y=y_smooth,
+    #         mode='lines',
+    #         name='Température lissée',
+    #         line=dict(color='red', width=2, dash='dot'),
+    #     ))
 
     # Fond nuit
     for i, row in filtered_df.iterrows():
