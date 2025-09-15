@@ -5,6 +5,8 @@ import requests
 from datetime import datetime, timedelta
 from scipy.interpolate import make_interp_spline
 import plotly.graph_objects as go
+from streamlit_plotly_events import plotly_events 
+
 
 API_KEY = st.secrets["API_KEY"]  
 
@@ -147,15 +149,22 @@ if city:
         df["day"] = df["datetime"].dt.date
         df["hour"] = df["datetime"].dt.hour
 
-        selected_day = st.selectbox("Choisissez un jour à afficher", options=["Tous"] + sorted(df["day"].unique().tolist()))
 
-        if selected_day != "Tous":
-            selected_day = pd.to_datetime(selected_day).date()
+        # Affichage principal + interaction clic
+        fig = create_weather_plot(df)
+        st.write("Cliquez sur un point pour zoomer sur le jour correspondant :")
+        selected = plotly_events(fig, click_event=True, hover_event=False)
+
+
+        if selected:
+            point_index = selected[0]["pointIndex"]
+            clicked_day = df.iloc[point_index]["day"]
+            st.markdown(f"### Zoom sur : {clicked_day.strftime('%A %d %B')}")
+            filtered_df = df[df["day"] == clicked_day]
+            fig_filtered = create_weather_plot(filtered_df)
+            st.plotly_chart(fig_filtered, use_container_width=True)
         else:
-            selected_day = None
-
-        fig = create_weather_plot(df, selected_day)
-        st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, use_container_width=True)
 
     else:
         st.warning("Ville non trouvée.")
