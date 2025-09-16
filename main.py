@@ -170,7 +170,7 @@ if city:
         df["day"] = df["datetime"].dt.date
         df["hour"] = df["datetime"].dt.hour
         df["datetime"] = pd.to_datetime(df["datetime"], utc=True)
-        print(df.head())
+        
         # Affichage principal + interaction clic
         fig = create_weather_plot(df, day="")
         selected = plotly_events(
