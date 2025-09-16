@@ -46,7 +46,7 @@ def getForecast(lat, lon):
 
 def create_weather_plot(filtered_df, day=None):
 
-    filtered_df = filtered_df.sort_values("datetime")
+    filtered_df = filtered_df.sort_values(by="datetime", ascending=True)
     # Interpolation
     x_raw = np.array([ts.timestamp() for ts in filtered_df["datetime"]])
     y_raw = np.array(filtered_df["temperature"])
