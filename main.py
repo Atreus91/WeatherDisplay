@@ -180,7 +180,7 @@ if city:
             hover_event=False,
             override_height=500,
             override_width="100%",
-            key="weather_plot"
+            # key="weather_plot"
         )
 
         # Stocker la sélection en session_state
@@ -211,7 +211,7 @@ if city:
                 hover_event=False,
                 override_height=500,
                 override_width="100%",
-                key="weather_plot_filtered"
+                # key="weather_plot_filtered"
             )
                 
 
