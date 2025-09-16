@@ -198,12 +198,21 @@ if city:
                 # ✅ Nouveau jour sélectionné
                 st.session_state.selected_day = clicked_day
 
-        # # Affichage du graphique zoomé si un jour est sélectionné
-        # if st.session_state.selected_day:
-        #     st.markdown(f"### Zoom sur : {st.session_state.selected_day.strftime('%A %d %B')}")
-        #     filtered_df = df[df["day"] == st.session_state.selected_day]
-        #     fig_filtered = create_weather_plot(filtered_df, day=f"- {st.session_state.selected_day.strftime('%A %d %B')}")
-        #     st.plotly_chart(fig_filtered, use_container_width=True)
+        # Affichage du graphique zoomé si un jour est sélectionné
+        if st.session_state.selected_day:
+            st.markdown(f"### Zoom sur : {st.session_state.selected_day.strftime('%A %d %B')}")
+            filtered_df = df[df["day"] == st.session_state.selected_day]
+            fig_filtered = create_weather_plot(filtered_df, day=f"- {st.session_state.selected_day.strftime('%A %d %B')}")
+            # st.plotly_chart(fig_filtered, use_container_width=True)
+            selected = plotly_events(
+                fig_filtered,
+                click_event=True,
+                select_event=False,
+                hover_event=False,
+                override_height=500,
+                override_width="100%",
+                key="weather_plot"
+            )
                 
 
     else:
