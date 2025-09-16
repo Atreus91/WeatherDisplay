@@ -74,14 +74,14 @@ def create_weather_plot(filtered_df, day=None):
     ))
 
     # Température lissée
-    if x_smooth:
-        fig.add_trace(go.Scatter(
-            x=x_smooth,
-            y=y_smooth,
-            mode='lines',
-            name='Température lissée',
-            line=dict(color='red', width=2, dash='dot'),
-        ))
+    # if x_smooth:
+    #     fig.add_trace(go.Scatter(
+    #         x=x_smooth,
+    #         y=y_smooth,
+    #         mode='lines',
+    #         name='Température lissée',
+    #         line=dict(color='red', width=2, dash='dot'),
+    #     ))
 
     # Fond nuit
     for i, row in filtered_df.iterrows():
