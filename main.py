@@ -204,15 +204,15 @@ if city:
             filtered_df = df[df["day"] == st.session_state.selected_day]
             fig = create_weather_plot(filtered_df, day=f"- {st.session_state.selected_day.strftime('%A %d %B')}")
             # st.plotly_chart(fig_filtered, use_container_width=True)
-            selected = plotly_events(
-                fig,
-                click_event=True,
-                select_event=False,
-                hover_event=False,
-                override_height=500,
-                override_width="100%",
-                # key="weather_plot_filtered"
-            )
+            # selected = plotly_events(
+            #     fig,
+            #     click_event=True,
+            #     select_event=False,
+            #     hover_event=False,
+            #     override_height=500,
+            #     override_width="100%",
+            #     # key="weather_plot_filtered"
+            # )
                 
 
     else:
