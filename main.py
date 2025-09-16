@@ -8,8 +8,8 @@ import plotly.graph_objects as go
 from streamlit_plotly_events import plotly_events
 
 # → Ta clé API personnelle
-# API_KEY = st.secrets["API_KEY"]
-API_KEY = '3c4238d722f3627c0299891bf1fd0346'
+API_KEY = st.secrets["API_KEY"]
+# API_KEY = '3c4238d722f3627c0299891bf1fd0346'
 
 EMOJIS = {
     "Clear": "☀️",
@@ -183,27 +183,27 @@ if city:
             key="weather_plot"
         )
 
-        # # Stocker la sélection en session_state
-        # if "selected_day" not in st.session_state:
-        #     st.session_state.selected_day = None
+        # Stocker la sélection en session_state
+        if "selected_day" not in st.session_state:
+            st.session_state.selected_day = None
 
-        # if selected:
-        #     clicked_ts = pd.to_datetime(selected[0]["x"])
-        #     clicked_day = clicked_ts.date()
+        if selected:
+            clicked_ts = pd.to_datetime(selected[0]["x"])
+            clicked_day = clicked_ts.date()
 
-        #     if st.session_state.selected_day == clicked_day:
-        #         # 🔁 Même jour → RESET
-        #         st.session_state.selected_day = None
-        #     else:
-        #         # ✅ Nouveau jour sélectionné
-        #         st.session_state.selected_day = clicked_day
+            if st.session_state.selected_day == clicked_day:
+                # 🔁 Même jour → RESET
+                st.session_state.selected_day = None
+            else:
+                # ✅ Nouveau jour sélectionné
+                st.session_state.selected_day = clicked_day
 
-        # # Affichage du graphique zoomé si un jour est sélectionné
-        # if st.session_state.selected_day:
-        #     st.markdown(f"### Zoom sur : {st.session_state.selected_day.strftime('%A %d %B')}")
-        #     filtered_df = df[df["day"] == st.session_state.selected_day]
-        #     fig_filtered = create_weather_plot(filtered_df, day=f"- {st.session_state.selected_day.strftime('%A %d %B')}")
-        #     st.plotly_chart(fig_filtered, use_container_width=True)
+        # Affichage du graphique zoomé si un jour est sélectionné
+        if st.session_state.selected_day:
+            st.markdown(f"### Zoom sur : {st.session_state.selected_day.strftime('%A %d %B')}")
+            filtered_df = df[df["day"] == st.session_state.selected_day]
+            fig_filtered = create_weather_plot(filtered_df, day=f"- {st.session_state.selected_day.strftime('%A %d %B')}")
+            st.plotly_chart(fig_filtered, use_container_width=True)
                 
 
     else:
