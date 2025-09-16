@@ -8,8 +8,8 @@ import plotly.graph_objects as go
 from streamlit_plotly_events import plotly_events
 
 # → Ta clé API personnelle
-# API_KEY = st.secrets["API_KEY"]
-API_KEY = '3c4238d722f3627c0299891bf1fd0346'
+API_KEY = st.secrets["API_KEY"]
+# API_KEY = '3c4238d722f3627c0299891bf1fd0346'
 
 EMOJIS = {
     "Clear": "☀️",
@@ -46,7 +46,7 @@ def getForecast(lat, lon):
 
 def create_weather_plot(filtered_df, day=None):
 
-    filtered_df = filtered_df.sort_values("datetime")
+    filtered_df = filtered_df.sort_values(by="datetime", ascending=True)
     # Interpolation
     x_raw = np.array([ts.timestamp() for ts in filtered_df["datetime"]])
     y_raw = np.array(filtered_df["temperature"])
@@ -74,14 +74,14 @@ def create_weather_plot(filtered_df, day=None):
     ))
 
     # Température lissée
-    if x_smooth:
-        fig.add_trace(go.Scatter(
-            x=x_smooth,
-            y=y_smooth,
-            mode='lines',
-            name='Température lissée',
-            line=dict(color='red', width=2, dash='dot'),
-        ))
+    # if x_smooth:
+    #     fig.add_trace(go.Scatter(
+    #         x=x_smooth,
+    #         y=y_smooth,
+    #         mode='lines',
+    #         name='Température lissée',
+    #         line=dict(color='red', width=2, dash='dot'),
+    #     ))
 
     # Fond nuit
     for i, row in filtered_df.iterrows():
@@ -170,8 +170,7 @@ if city:
         df["day"] = df["datetime"].dt.date
         df["hour"] = df["datetime"].dt.hour
         df["datetime"] = pd.to_datetime(df["datetime"], utc=True)
-        print(df.head())
-
+        
         # Affichage principal + interaction clic
         fig = create_weather_plot(df, day="")
         selected = plotly_events(
@@ -199,21 +198,12 @@ if city:
                 # ✅ Nouveau jour sélectionné
                 st.session_state.selected_day = clicked_day
 
-        # Affichage du graphique zoomé si un jour est sélectionné
-        if st.session_state.selected_day:
-            st.markdown(f"### Zoom sur : {st.session_state.selected_day.strftime('%A %d %B')}")
-            filtered_df = df[df["day"] == st.session_state.selected_day]
-            fig_filtered = create_weather_plot(filtered_df, day=f"- {st.session_state.selected_day.strftime('%A %d %B')}")
-            # st.plotly_chart(fig_filtered, use_container_width=True)
-            selected = plotly_events(
-                fig_filtered,
-                click_event=True,
-                select_event=False,
-                hover_event=False,
-                override_height=500,
-                override_width="100%",
-                key="weather_plot"
-            )
+        # # Affichage du graphique zoomé si un jour est sélectionné
+        # if st.session_state.selected_day:
+        #     st.markdown(f"### Zoom sur : {st.session_state.selected_day.strftime('%A %d %B')}")
+        #     filtered_df = df[df["day"] == st.session_state.selected_day]
+        #     fig_filtered = create_weather_plot(filtered_df, day=f"- {st.session_state.selected_day.strftime('%A %d %B')}")
+        #     st.plotly_chart(fig_filtered, use_container_width=True)
                 
 
     else:
