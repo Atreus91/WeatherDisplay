@@ -1,12 +1,13 @@
-import streamlit as st
+import dash
+from dash import dcc, html, Output, Input, State
+import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
-import requests
-import copy
 from datetime import datetime, timedelta, timezone
 from scipy.interpolate import make_interp_spline
-import plotly.graph_objects as go
-from streamlit_plotly_events import plotly_events
+import requests
+
+
 
 # → Ta clé API personnelle
 # API_KEY = st.secrets["API_KEY"]
@@ -45,7 +46,19 @@ def getForecast(lat, lon):
     response = requests.get(url, params=params)
     return response.json()
 
-def create_weather_plot(filtered_df, day=None):
+
+# --- Dash App ---
+app = dash.Dash(__name__)
+app.title = "Météo Zoom"
+
+app.layout = html.Div([
+    html.H2("Prévisions météo interactives"),
+    html.H4(id="subtitle"),
+    dcc.Graph(id="weather-graph", config={"displayModeBar": False}),
+    dcc.Store(id="selected-day")
+])
+
+def create_figure(filtered_df, day=None):
 
     filtered_df = filtered_df.sort_values(by="datetime", ascending=True)
     # Interpolation
@@ -145,72 +158,49 @@ def create_weather_plot(filtered_df, day=None):
 
     return fig
 
-# --- STREAMLIT APP ---
-st.set_page_config(page_title="Weather App", layout="wide")
-st.title("🌧️ Visualisation des prévisions météo")
+city = "Paris"
+lat, lon = geocoding(city)
+data = getForecast(lat, lon)
 
-# city = st.text_input("Entrez une ville")
-city = st.text_input("Entrez une ville", value="Paris")
-if city:
-    lat, lon = geocoding(city)
-    if lat is not None:
-        data = getForecast(lat, lon)
+temperatures = [entry["main"]["temp"] for entry in data["list"]]
+timestamps = [datetime.fromtimestamp(entry["dt"]) for entry in data["list"]]
+weathers = [entry["weather"][0]["main"] for entry in data['list']]
+weather_emojis = [EMOJIS.get(w, "❓") for w in weathers]
 
-        temperatures = [entry["main"]["temp"] for entry in data["list"]]
-        timestamps = [datetime.fromtimestamp(entry["dt"]) for entry in data["list"]]
-        weathers = [entry["weather"][0]["main"] for entry in data['list']]
-        weather_emojis = [EMOJIS.get(w, "❓") for w in weathers]
+df = pd.DataFrame({
+    "datetime": timestamps,
+    "temperature": temperatures,
+    "emoji": weather_emojis
+})
+df["day"] = df["datetime"].dt.date
+df["hour"] = df["datetime"].dt.hour
+df["datetime"] = pd.to_datetime(df["datetime"], utc=True)
+df["temperature"] = df["temperature"].astype(float)
 
-        df = pd.DataFrame({
-            "datetime": timestamps,
-            "temperature": temperatures,
-            "emoji": weather_emojis
-        })
-        df["day"] = df["datetime"].dt.date
-        df["hour"] = df["datetime"].dt.hour
-        df["datetime"] = pd.to_datetime(df["datetime"], utc=True)
-        df["temperature"] = df["temperature"].astype(float)
-        # df["datetime"] = df["datetime"].apply(lambda x: x.to_pydatetime())
-        # df["datetime"] = df["datetime"].dt.tz_convert(None)  # Retire UTC
+# --- Callback principal ---
+@app.callback(
+    Output("weather-graph", "figure"),
+    Output("selected-day", "data"),
+    Output("subtitle", "children"),
+    Input("weather-graph", "clickData"),
+    State("selected-day", "data")
+)
+def update_graph(clickData, stored_day):
+    if clickData is None:
+        return create_figure(df), None, ""
 
+    clicked_ts = pd.to_datetime(clickData["points"][0]["x"])
+    clicked_day = clicked_ts.date()
 
-
-        # Affichage principal + interaction clic
-        # df["datetime"] = df["datetime"].dt.tz_convert(None)
-        # df = df.sort_values("datetime").reset_index(drop=True)
-        # print(len(df["temperature"]))   
-        fig = create_weather_plot(df)
-        fig_event = copy.deepcopy(fig)
-
-        selected = plotly_events(
-            fig_event,
-            click_event=True,
-            select_event=False,
-            hover_event=False,
-            override_height=500,
-            override_width="100%",
-            key="weather_plot",
-        )
-
-        # Stocker la sélection en session_state
-        # if "selected_day" not in st.session_state:
-        #     st.session_state.selected_day = None
-
-        # if selected:
-        #     clicked_ts = pd.to_datetime(selected[0]["x"])
-        #     clicked_day = clicked_ts.date()
-
-        #     if st.session_state.selected_day == clicked_day:
-        #         st.session_state.selected_day = None
-        #     else:
-        #         st.session_state.selected_day = clicked_day
-
-        # if st.session_state.selected_day:
-        #     filtered_df = df[df["day"] == st.session_state.selected_day]
-        #     fig_filtered = create_weather_plot(filtered_df)
-        #     st.markdown(f"### Zoom sur : {st.session_state.selected_day.strftime('%A %d %B')}")
-        #     st.plotly_chart(fig_filtered, use_container_width=True)
-
-
+    if stored_day == str(clicked_day):
+        # 👈 Même jour → reset
+        return create_figure(df), None, ""
     else:
-        st.warning("Ville non trouvée.")
+        # 👈 Nouveau jour sélectionné → filtre
+        filtered = df[df["day"] == clicked_day]
+        subtitle = f"Zoom sur : {clicked_day.strftime('%A %d %B')}"
+        return create_figure(filtered, f"- {clicked_day.strftime('%A %d')}"), str(clicked_day), subtitle
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
