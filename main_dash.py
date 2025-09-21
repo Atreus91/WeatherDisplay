@@ -11,7 +11,7 @@ import requests
 
 # → Ta clé API personnelle
 # API_KEY = st.secrets["API_KEY"]
-API_KEY = '3c4238d722f3627c0299891bf1fd0346'
+
 
 EMOJIS = {
     "Clear": "☀️",
