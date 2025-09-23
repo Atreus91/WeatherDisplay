@@ -158,24 +158,6 @@ def create_figure(filtered_df, day=None):
 
     return fig
 
-city = "Paris"
-lat, lon = geocoding(city)
-data = getForecast(lat, lon)
-
-temperatures = [entry["main"]["temp"] for entry in data["list"]]
-timestamps = [datetime.fromtimestamp(entry["dt"]) for entry in data["list"]]
-weathers = [entry["weather"][0]["main"] for entry in data['list']]
-weather_emojis = [EMOJIS.get(w, "❓") for w in weathers]
-
-df = pd.DataFrame({
-    "datetime": timestamps,
-    "temperature": temperatures,
-    "emoji": weather_emojis
-})
-df["day"] = df["datetime"].dt.date
-df["hour"] = df["datetime"].dt.hour
-df["datetime"] = pd.to_datetime(df["datetime"], utc=True)
-df["temperature"] = df["temperature"].astype(float)
 
 # --- Callback principal ---
 @app.callback(
@@ -203,4 +185,23 @@ def update_graph(clickData, stored_day):
 
 
 if __name__ == '__main__':
+    city = "Paris"
+    lat, lon = geocoding(city)
+    data = getForecast(lat, lon)
+
+    temperatures = [entry["main"]["temp"] for entry in data["list"]]
+    timestamps = [datetime.fromtimestamp(entry["dt"]) for entry in data["list"]]
+    weathers = [entry["weather"][0]["main"] for entry in data['list']]
+    weather_emojis = [EMOJIS.get(w, "❓") for w in weathers]
+
+    df = pd.DataFrame({
+        "datetime": timestamps,
+        "temperature": temperatures,
+        "emoji": weather_emojis
+    })
+    df["day"] = df["datetime"].dt.date
+    df["hour"] = df["datetime"].dt.hour
+    df["datetime"] = pd.to_datetime(df["datetime"], utc=True)
+    df["temperature"] = df["temperature"].astype(float)
+
     app.run(debug=True)
