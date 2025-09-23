@@ -197,4 +197,4 @@ def update_graph(clickData, df_records, stored_day):
 
 # Run app
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run(debug=True)
