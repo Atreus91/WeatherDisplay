@@ -6,12 +6,12 @@ import numpy as np
 from datetime import datetime, timedelta, timezone
 from scipy.interpolate import make_interp_spline
 import requests
-
+import os
 
 
 # → Ta clé API personnelle
 # API_KEY = st.secrets["API_KEY"]
-
+API_KEY = os.environ.get('API_KEY')
 
 EMOJIS = {
     "Clear": "☀️",
