@@ -156,6 +156,7 @@ app.layout = html.Div([
     Output("subtitle", "children"),
     Input("submit-btn", "n_clicks"),
     State("city-input", "value"),
+    allow_duplicate_callbacks=True
 )
 def update_city(n_clicks, city):
     if not city:
@@ -176,7 +177,8 @@ def update_city(n_clicks, city):
     Output("subtitle", "children"),
     Input("weather-graph", "clickData"),
     State("df-store", "data"),
-    State("selected-day", "data")
+    State("selected-day", "data"),
+    allow_duplicate_callbacks=True
 )
 def update_graph(clickData, df_records, stored_day):
     df = pd.DataFrame(df_records)
