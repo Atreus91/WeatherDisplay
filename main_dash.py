@@ -5,7 +5,7 @@ import requests
 from datetime import datetime, timedelta, timezone
 from scipy.interpolate import make_interp_spline
 
-from dash import Dash, dcc, html, Output, Input, State, callback_context
+from dash import Dash, dcc, html, Output, Input, State, callback_context, exceptions, no_update
 import plotly.graph_objects as go
 
 # Clé API (via variable d'environnement ou en dur)
@@ -19,13 +19,20 @@ EMOJIS = {
 }
 
 def geocoding(city):
-    url = f"http://api.openweathermap.org/geo/1.0/direct"
+    url = "http://api.openweathermap.org/geo/1.0/direct"
     params = {"q": city, "limit": 1, "appid": API_KEY}
     response = requests.get(url, params=params)
-    data = response.json()
-    if data:
+
+    try:
+        data = response.json()
+    except Exception:
+        return None, None
+
+    if data and isinstance(data, list) and len(data) > 0:
         return data[0]["lat"], data[0]["lon"]
-    return None, None
+    else:
+        return None, None
+
 
 def getForecast(lat, lon):
     url = f"http://api.openweathermap.org/data/2.5/forecast"
@@ -164,13 +171,16 @@ def update_everything(n_clicks, clickData, city, stored_day):
     ctx = callback_context
 
     if not ctx.triggered:
-        raise Dash.exceptions.PreventUpdate
+        raise exceptions.PreventUpdate
 
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
     # Si le bouton est cliqué → on recharge la ville
     if trigger_id == "submit-btn":
         lat, lon = geocoding(city)
+        if lat is None or lon is None:
+            return no_update, no_update, no_update, "❌ Ville introuvable"
+        
         data = getForecast(lat, lon)
         df = create_dataframe(data)
         fig = create_figure(df)
