@@ -155,47 +155,41 @@ app.layout = html.Div([
     Output("selected-day", "data"),
     Output("subtitle", "children"),
     Input("submit-btn", "n_clicks"),
-    State("city-input", "value"),
-    allow_duplicate_callbacks=True
-)
-def update_city(n_clicks, city):
-    if not city:
-        return Dash.no_update
-
-    lat, lon = geocoding(city)
-    if lat is None:
-        return Dash.no_update, go.Figure(), None, f"Ville '{city}' non trouvée"
-
-    data = getForecast(lat, lon)
-    df = create_dataframe(data)
-    return df.to_dict("records"), create_figure(df), None, ""
-
-# Mise à jour du graphique quand on clique dessus
-@app.callback(
-    Output("weather-graph", "figure"),
-    Output("selected-day", "data"),
-    Output("subtitle", "children"),
     Input("weather-graph", "clickData"),
-    State("df-store", "data"),
+    State("city-input", "value"),
     State("selected-day", "data"),
-    allow_duplicate_callbacks=True
+    prevent_initial_call=True
 )
-def update_graph(clickData, df_records, stored_day):
-    df = pd.DataFrame(df_records)
-    df["datetime"] = pd.to_datetime(df["datetime"])
+def update_everything(n_clicks, clickData, city, stored_day):
+    ctx = Dash.callback_context
 
-    if clickData is None:
-        return create_figure(df), None, ""
+    if not ctx.triggered:
+        raise Dash.exceptions.PreventUpdate
 
-    clicked_ts = pd.to_datetime(clickData["points"][0]["x"])
-    clicked_day = clicked_ts.date()
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
-    if stored_day == str(clicked_day):
-        return create_figure(df), None, ""
-    else:
-        filtered = df[df["day"] == clicked_day]
-        subtitle = f"Zoom sur : {clicked_day.strftime('%A %d %B')}"
-        return create_figure(filtered, f"- {clicked_day.strftime('%A %d')}"), str(clicked_day), subtitle
+    # Si le bouton est cliqué → on recharge la ville
+    if trigger_id == "submit-btn":
+        lat, lon = geocoding(city)
+        data = getForecast(lat, lon)
+        df = create_dataframe(data)
+        fig = create_figure(df)
+        return df.to_dict("records"), fig, None, ""
+
+    # Sinon : clic sur un point
+    elif trigger_id == "weather-graph":
+        clicked_ts = pd.to_datetime(clickData["points"][0]["x"])
+        clicked_day = clicked_ts.date()
+
+        df = pd.DataFrame(Dash.callback_context.states["df-store.data"])
+
+        if stored_day == str(clicked_day):
+            return df.to_dict("records"), create_figure(df), None, ""
+        else:
+            filtered = df[df["day"] == clicked_day]
+            subtitle = f"Zoom sur : {clicked_day.strftime('%A %d %B')}"
+            return df.to_dict("records"), create_figure(filtered), str(clicked_day), subtitle
+
 
 # Run app
 if __name__ == "__main__":
