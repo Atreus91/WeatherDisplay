@@ -5,7 +5,7 @@ import requests
 from datetime import datetime, timedelta, timezone
 from scipy.interpolate import make_interp_spline
 
-from dash import Dash, dcc, html, Output, Input, State, ctx
+from dash import Dash, dcc, html, Output, Input, State, callback_context
 import plotly.graph_objects as go
 
 # Clé API (via variable d'environnement ou en dur)
@@ -161,7 +161,7 @@ app.layout = html.Div([
     prevent_initial_call=True
 )
 def update_everything(n_clicks, clickData, city, stored_day):
-    ctx = Dash.callback_context
+    ctx = callback_context
 
     if not ctx.triggered:
         raise Dash.exceptions.PreventUpdate
@@ -181,7 +181,7 @@ def update_everything(n_clicks, clickData, city, stored_day):
         clicked_ts = pd.to_datetime(clickData["points"][0]["x"])
         clicked_day = clicked_ts.date()
 
-        df = pd.DataFrame(Dash.callback_context.states["df-store.data"])
+        df = pd.DataFrame(callback_context.states["df-store.data"])
 
         if stored_day == str(clicked_day):
             return df.to_dict("records"), create_figure(df), None, ""
