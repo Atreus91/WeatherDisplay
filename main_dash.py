@@ -9,7 +9,7 @@ from dash import Dash, dcc, html, Output, Input, State, callback_context, except
 import plotly.graph_objects as go
 
 # Clé API (via variable d'environnement ou en dur)
-API_KEY = os.getenv("API_KEY", "3c4238d722f3627c0299891bf1fd0346")
+API_KEY = os.getenv("API_KEY")
 
 EMOJIS = {
     "Clear": "☀️", "Clouds": "☁️", "Rain": "🌧️", "Snow": "❄️",
@@ -19,19 +19,12 @@ EMOJIS = {
 }
 
 def geocoding(city):
-    url = "http://api.openweathermap.org/geo/1.0/direct"
-    params = {"q": city, "limit": 1, "appid": API_KEY}
-    response = requests.get(url, params=params)
-
-    try:
-        data = response.json()
-    except Exception:
-        return None, None
-
-    if data and isinstance(data, list) and len(data) > 0:
-        return data[0]["lat"], data[0]["lon"]
-    else:
-        return None, None
+    geo_url = "https://api.openweathermap.org/geo/1.0/direct"
+    geo_params = {"q": city, "limit": 1, "appid": API_KEY}
+    geo = requests.get(geo_url, params=geo_params).json()
+    assert geo, f"Ville introuvable: {city}"
+    lat, lon = geo[0]["lat"], geo[0]["lon"]
+    return lat, lon
 
 
 def getForecast(lat, lon):
