@@ -5,7 +5,7 @@ import requests
 from datetime import datetime, timedelta, timezone
 from scipy.interpolate import make_interp_spline
 
-from dash import Dash, dcc, html, Output, Input, State, callback_context, exceptions, no_update
+from dash import Dash, dcc, html, Output, Input, State, ctx, exceptions, no_update
 import plotly.graph_objects as go
 
 # Clé API (via variable d'environnement ou en dur)
@@ -166,12 +166,12 @@ app.layout = html.Div([
     prevent_initial_call=True
 )
 def update_everything(n_clicks, clickData, city, stored_day):
-    ctx = callback_context
+    # ctx = callback_context
 
     if not ctx.triggered:
         raise exceptions.PreventUpdate
 
-    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    trigger_id = ctx.triggered_id[0]["prop_id"].split(".")[0]
 
     # Si le bouton est cliqué → on recharge la ville
     if trigger_id == "submit-btn":
