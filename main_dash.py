@@ -153,18 +153,7 @@ app.layout = html.Div([
     dcc.Store(id="selected-day")
 ])
 
-# Récupère la météo quand on change de ville
-@app.callback(
-    Output("df-store", "data"),
-    Output("weather-graph", "figure"),
-    Output("selected-day", "data"),
-    Output("subtitle", "children"),
-    Input("submit-btn", "n_clicks"),
-    Input("weather-graph", "clickData"),
-    State("city-input", "value"),
-    State("selected-day", "data"),
-    prevent_initial_call=True
-)
+
 @app.callback(
     Output("df-store", "data"),
     Output("weather-graph", "figure"),
