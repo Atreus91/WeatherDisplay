@@ -165,15 +165,22 @@ app.layout = html.Div([
     State("selected-day", "data"),
     prevent_initial_call=True
 )
-def update_everything(n_clicks, clickData, city, stored_day):
-    # ctx = callback_context
-
+@app.callback(
+    Output("df-store", "data"),
+    Output("weather-graph", "figure"),
+    Output("selected-day", "data"),
+    Output("subtitle", "children"),
+    Input("submit-btn", "n_clicks"),
+    Input("weather-graph", "clickData"),
+    State("city-input", "value"),
+    State("selected-day", "data"),
+    State("df-store", "data"),
+    prevent_initial_call=True
+)
+def update_everything(n_clicks, clickData, city, stored_day, df_data):
     if not ctx.triggered:
         raise exceptions.PreventUpdate
 
-    # trigger_id = ctx.triggered_id[0]["prop_id"].split(".")[0]
-
-    # Si le bouton est cliqué → on recharge la ville
     if ctx.triggered_id == "submit-btn":
         lat, lon = geocoding(city)
         if lat is None or lon is None:
@@ -184,12 +191,10 @@ def update_everything(n_clicks, clickData, city, stored_day):
         fig = create_figure(df)
         return df.to_dict("records"), fig, None, ""
 
-    # Sinon : clic sur un point
     elif ctx.triggered_id == "weather-graph":
+        df = pd.DataFrame(df_data)
         clicked_ts = pd.to_datetime(clickData["points"][0]["x"])
         clicked_day = clicked_ts.date()
-
-        df = pd.DataFrame(ctx.triggered["df-store.data"])
 
         if stored_day == str(clicked_day):
             return df.to_dict("records"), create_figure(df), None, ""
@@ -197,7 +202,6 @@ def update_everything(n_clicks, clickData, city, stored_day):
             filtered = df[df["day"] == clicked_day]
             subtitle = f"Zoom sur : {clicked_day.strftime('%A %d %B')}"
             return df.to_dict("records"), create_figure(filtered), str(clicked_day), subtitle
-
 
 # Run app
 if __name__ == "__main__":
