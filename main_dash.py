@@ -145,13 +145,21 @@ app.title = "Météo"
 
 app.layout = html.Div([
     html.H2("🌦️ Prévisions météo"),
-    dcc.Input(id="city-input", type="text", value="Paris", placeholder="Entrez une ville"),
-    html.Button("Valider", id="submit-btn", n_clicks=0),
+    
+    html.Div([
+        dcc.Input(id="city-input", type="text", value="Paris", placeholder="Entrez une ville"),
+        html.Button("Valider", id="submit-btn", n_clicks=0),
+    ], style={"marginBottom": "20px"}),
+
     html.H3(id="subtitle"),
+    
     dcc.Graph(id="weather-graph"),
+
+    # Stores pour mémorisation des états
     dcc.Store(id="df-store"),
-    dcc.Store(id="selected-day")
+    dcc.Store(id="selected-day"),
 ])
+
 
 
 @app.callback(
@@ -167,12 +175,10 @@ app.layout = html.Div([
     prevent_initial_call=True
 )
 def update_everything(n_clicks, clickData, city, stored_day, df_data):
-    print('before click : ', city)
     if not ctx.triggered:
         raise exceptions.PreventUpdate
 
     if ctx.triggered_id == "submit-btn":
-        print('after click : ', city)
         lat, lon = geocoding(city)
         if lat is None or lon is None:
             return no_update, no_update, no_update, "❌ Ville introuvable"
