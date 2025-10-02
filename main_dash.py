@@ -28,10 +28,15 @@ def geocoding(city):
 
 
 def getForecast(lat, lon):
-    url = f"http://api.openweathermap.org/data/2.5/forecast"
-    params = {"lat": lat, "lon": lon, "appid": API_KEY, "units": "metric"}
-    response = requests.get(url, params=params)
-    return response.json()
+    oc_url = "https://api.openweathermap.org/data/2.5/forecast"
+    oc_params={
+            "lat": lat,
+            "lon": lon,
+            "appid": API_KEY,
+            "units": "metric",
+            "exclude": "minutely,alerts"
+        }
+    return requests.get(oc_url, params=oc_params).json()
 
 def create_dataframe(data):
     temperatures = [entry["main"]["temp"] for entry in data["list"]]
