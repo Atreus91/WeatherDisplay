@@ -171,10 +171,10 @@ def update_everything(n_clicks, clickData, city, stored_day):
     if not ctx.triggered:
         raise exceptions.PreventUpdate
 
-    trigger_id = ctx.triggered_id[0]["prop_id"].split(".")[0]
+    # trigger_id = ctx.triggered_id[0]["prop_id"].split(".")[0]
 
     # Si le bouton est cliqué → on recharge la ville
-    if trigger_id == "submit-btn":
+    if ctx.triggered_id == "submit-btn":
         lat, lon = geocoding(city)
         if lat is None or lon is None:
             return no_update, no_update, no_update, "❌ Ville introuvable"
@@ -185,11 +185,11 @@ def update_everything(n_clicks, clickData, city, stored_day):
         return df.to_dict("records"), fig, None, ""
 
     # Sinon : clic sur un point
-    elif trigger_id == "weather-graph":
+    elif ctx.triggered_id == "weather-graph":
         clicked_ts = pd.to_datetime(clickData["points"][0]["x"])
         clicked_day = clicked_ts.date()
 
-        df = pd.DataFrame(callback_context.states["df-store.data"])
+        df = pd.DataFrame(ctx.triggered["df-store.data"])
 
         if stored_day == str(clicked_day):
             return df.to_dict("records"), create_figure(df), None, ""
