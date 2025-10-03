@@ -195,7 +195,8 @@ def update_everything(n_clicks, clickData, city, stored_day, df_data):
         return df.to_dict("records"), fig, None, ""
 
     elif ctx.triggered_id == "weather-graph":
-
+        if not df_data or not clickData:
+            raise exceptions.PreventUpdate
         df = pd.DataFrame(df_data)
         df = format_dataframe(df)
 
@@ -211,5 +212,5 @@ def update_everything(n_clicks, clickData, city, stored_day, df_data):
 
 # Run app
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5050))  
-    app.run(debug=True, host="127.0.0.1", port=port)
+    port = int(os.getenv("PORT", 8050))  
+    app.run(debug=True, host="0.0.0.0", port=port)
