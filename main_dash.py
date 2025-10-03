@@ -10,7 +10,7 @@ import plotly.graph_objects as go
 
 # Clé API (via variable d'environnement ou en dur)
 # API_KEY = os.getenv("API_KEY")
-dotenv.load_dotenv()
+# dotenv.load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
 EMOJIS = {
