@@ -4,11 +4,13 @@ import numpy as np
 import requests
 from datetime import datetime, timedelta, timezone
 from scipy.interpolate import make_interp_spline
-
+import dotenv 
 from dash import Dash, dcc, html, Output, Input, State, ctx, exceptions, no_update
 import plotly.graph_objects as go
 
 # Clé API (via variable d'environnement ou en dur)
+# API_KEY = os.getenv("API_KEY")
+dotenv.load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
 EMOJIS = {
@@ -38,6 +40,13 @@ def getForecast(lat, lon):
         }
     return requests.get(oc_url, params=oc_params).json()
 
+def format_dataframe(df):
+    df["datetime"] = pd.to_datetime(df["datetime"], utc=True)
+    df["day"] = df["datetime"].dt.date
+    df["hour"] = df["datetime"].dt.hour
+    df["temperature"] = df["temperature"].astype(float)
+    return df
+
 def create_dataframe(data):
     temperatures = [entry["main"]["temp"] for entry in data["list"]]
     timestamps = [datetime.fromtimestamp(entry["dt"]) for entry in data["list"]]
@@ -49,10 +58,7 @@ def create_dataframe(data):
         "temperature": temperatures,
         "emoji": weather_emojis
     })
-    df["day"] = df["datetime"].dt.date
-    df["hour"] = df["datetime"].dt.hour
-    df["datetime"] = pd.to_datetime(df["datetime"], utc=True)
-    df["temperature"] = df["temperature"].astype(float)
+    df = format_dataframe(df)
     return df
 
 def create_figure(filtered_df, subtitle=None):
@@ -177,7 +183,7 @@ app.layout = html.Div([
 def update_everything(n_clicks, clickData, city, stored_day, df_data):
     if not ctx.triggered:
         raise exceptions.PreventUpdate
-
+    
     if ctx.triggered_id == "submit-btn":
         lat, lon = geocoding(city)
         if lat is None or lon is None:
@@ -189,7 +195,10 @@ def update_everything(n_clicks, clickData, city, stored_day, df_data):
         return df.to_dict("records"), fig, None, ""
 
     elif ctx.triggered_id == "weather-graph":
+
         df = pd.DataFrame(df_data)
+        df = format_dataframe(df)
+
         clicked_ts = pd.to_datetime(clickData["points"][0]["x"])
         clicked_day = clicked_ts.date()
 
@@ -202,5 +211,5 @@ def update_everything(n_clicks, clickData, city, stored_day, df_data):
 
 # Run app
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8050))  # Render te donne le port via la variable d'environnement PORT
-    app.run(debug=True, host="0.0.0.0", port=port)
+    port = int(os.environ.get("PORT", 5050))  
+    app.run(debug=True, host="127.0.0.1", port=port)
