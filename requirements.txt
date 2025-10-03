@@ -10,3 +10,4 @@ streamlit==1.49.1
 tqdm==4.67.1
 scipy==1.14.1
 streamlit_plotly_events==0.0.6
+python-dotenv==1.1.1
